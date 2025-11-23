@@ -257,10 +257,24 @@ sudo systemctl enable strongswan-swanctl
 sudo /usr/sbin/charon-systemd &
 ```
 
+
 ### 5. Load Configuration
 
 ```bash
 sudo swanctl --load-all
+```
+
+If you find an error like this: 
+
+```bash
+plugin 'openssl' failed to load: /lib/x86_64-linux-gnu/libcrypto.so.3: version `OPENSSL_3.3.0' not found (required by /usr/lib/ipsec/plugins/libstrongswan-openssl.so)
+```
+
+Run these commands:
+
+```bash
+echo "/usr/local/lib64" | sudo tee /etc/ld.so.conf.d/custom-openssl.conf
+sudo ldconfig
 ```
 
 ### 6. Verify Server Status
