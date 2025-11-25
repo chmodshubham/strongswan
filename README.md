@@ -108,52 +108,32 @@ tar xjf strongswan-6.0.2.tar.bz2
 cd strongswan-6.0.2
 
 PKG_CONFIG_PATH="/usr/local/lib64/pkgconfig:/usr/local/lib/pkgconfig" \
-CPPFLAGS="-I/usr/local/include" \
-LDFLAGS="-L/usr/local/lib64 -L/usr/local/lib" \
 ./configure \
     --prefix=/usr \
     --sysconfdir=/etc \
     --localstatedir=/var \
-    --runstatedir=/var/run \
     --with-systemdsystemunitdir=/lib/systemd/system \
     --disable-defaults \
-    --enable-silent-rules \
     --enable-charon \
     --enable-systemd \
-    --enable-ikev2 \
     --enable-vici \
     --enable-swanctl \
+    --enable-ikev2 \
+    --enable-openssl \
+    --enable-ml \
     --enable-nonce \
     --enable-random \
-    --enable-drbg \
-    --enable-openssl \
-    --disable-gcrypt \
-    --enable-curl \
     --enable-pem \
     --enable-x509 \
-    --enable-constraints \
-    --enable-revocation \
+    --enable-pkcs1 \
+    --enable-pkcs8 \
     --enable-pki \
     --enable-pubkey \
     --enable-socket-default \
     --enable-kernel-netlink \
-    --enable-resolve \
-    --enable-eap-identity \
-    --enable-eap-md5 \
-    --enable-eap-dynamic \
-    --enable-eap-tls \
     --enable-updown \
-    --enable-sha2 \
-    --enable-pkcs11 \
-    --enable-hmac \
-    --enable-gcm \
-    --enable-mgf1 \
-    --enable-aes \
-    --enable-des \
-    --enable-sha1 \
-    --enable-md5 \
-    --enable-gmp \
-    --enable-stroke
+    --enable-resolve \
+    --enable-silent-rules
 
 make -j$(nproc)
 sudo make install
@@ -223,6 +203,8 @@ sudo cp classical/pki/private/client-key.pem /etc/swanctl/private/
 
 ### 2. Copy Configuration Files
 
+Update the `local_addrs` and `remote_addrs` in the respective `.conf` files.
+
 Copy the server configuration from your repository:
 
 ```bash
@@ -249,38 +231,23 @@ sudo ip link set tunnel0 up
 
 ```bash
 # Start the daemon
-sudo systemctl start strongswan-swanctl
 sudo systemctl enable strongswan-swanctl
+sudo systemctl start strongswan-swanctl
 
 # Or start manually
 sudo /usr/sbin/charon-systemd &
 ```
 
+Verify Swanctl Status
+
+```bash
+sudo swanctl --version
+```
 
 ### 5. Load Configuration
 
 ```bash
 sudo swanctl --load-all
-```
-
-If you find an error like this: 
-
-```bash
-plugin 'openssl' failed to load: /lib/x86_64-linux-gnu/libcrypto.so.3: version `OPENSSL_3.3.0' not found (required by /usr/lib/ipsec/plugins/libstrongswan-openssl.so)
-```
-
-Run these commands:
-
-```bash
-echo "/usr/local/lib64" | sudo tee /etc/ld.so.conf.d/custom-openssl.conf
-sudo ldconfig
-```
-
-### 6. Verify Server Status
-
-```bash
-sudo swanctl --list-conns
-sudo swanctl --version
 ```
 
 ## Client Configuration
@@ -300,6 +267,8 @@ sudo cp classical/pki/private/server-key.pem /etc/swanctl/private/
 
 ### 2. Copy Configuration Files
 
+Update the `local_addrs` and `remote_addrs` in the respective `.conf` files.
+
 Copy the client configuration from your repository:
 
 ```bash
@@ -317,8 +286,8 @@ Replace `<IPSEC_MODE>` with either `classical` or `pq-support`.
 
 ```bash
 # Start the daemon
-sudo systemctl start strongswan-swanctl
 sudo systemctl enable strongswan-swanctl
+sudo systemctl start strongswan-swanctl
 
 # Or start manually
 sudo /usr/sbin/charon-systemd &
