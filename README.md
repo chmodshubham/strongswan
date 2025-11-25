@@ -176,6 +176,8 @@ Use the provided script to generate certificates. Save this as `generate-pki.sh`
 For Classical Mode (RSA-4096):
 
 ```bash
+git clone https://github.com/chmodshubham/strongswan.git
+cd strongswan/
 chmod +x generate-pki.sh
 ./generate-pki.sh classical
 ```
