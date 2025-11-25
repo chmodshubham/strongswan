@@ -127,7 +127,6 @@ LDFLAGS="-L/usr/local/lib64 -L/usr/local/lib" \
     --enable-random \
     --enable-drbg \
     --enable-openssl \
-    --with-openssl-dir=/usr/local \
     --disable-gcrypt \
     --enable-curl \
     --enable-pem \
