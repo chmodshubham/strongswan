@@ -108,6 +108,8 @@ tar xjf strongswan-6.0.2.tar.bz2
 cd strongswan-6.0.2
 
 PKG_CONFIG_PATH="/usr/local/lib64/pkgconfig:/usr/local/lib/pkgconfig" \
+CPPFLAGS="-I/usr/local/include" \
+LDFLAGS="-L/usr/local/lib64 -L/usr/local/lib -Wl,-rpath,/usr/local/lib64 -Wl,-rpath,/usr/local/lib" \
 ./configure \
     --prefix=/usr \
     --sysconfdir=/etc \
