@@ -288,8 +288,8 @@ Replace `<IPSEC_MODE>` with either `classical` or `pq-support`.
 
 ```bash
 # Start the daemon
-sudo systemctl enable strongswan-swanctl
-sudo systemctl start strongswan-swanctl
+sudo systemctl enable strongswan
+sudo systemctl start strongswan
 
 # Or start manually
 sudo /usr/sbin/charon-systemd &
@@ -411,8 +411,8 @@ openssl list -signature-algorithms
 
 ```bash
 # Stop StrongSwan
-sudo systemctl stop strongswan-swanctl
-sudo systemctl disable strongswan-swanctl
+sudo systemctl enable strongswan
+sudo systemctl start strongswan
 
 # Remove configuration
 sudo rm -rf /etc/swanctl/*
