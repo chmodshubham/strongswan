@@ -233,8 +233,8 @@ sudo ip link set tunnel0 up
 
 ```bash
 # Start the daemon
-sudo systemctl enable strongswan-swanctl
-sudo systemctl start strongswan-swanctl
+sudo systemctl enable strongswan
+sudo systemctl start strongswan
 
 # Or start manually
 sudo /usr/sbin/charon-systemd &
