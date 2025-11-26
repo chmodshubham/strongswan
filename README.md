@@ -7,7 +7,7 @@ The setup supports two operational modes:
 **Classical Mode:**
 
 - RSA-4096 certificates for authentication
-- Traditional key exchange algorithms
+- Traditional key exchange algorithms (Classical certs and RSA key exchange)
 
 **Post-Quantum Mode:**
 
@@ -23,7 +23,7 @@ The setup supports two operational modes:
 - Root or sudo access
 - Two machines: one for server, one for client
 
-## System Preparation
+## System Preparation (for both machines)
 
 ### 1. Install Build Dependencies
 
@@ -84,20 +84,14 @@ sudo make install
 sudo ldconfig
 ```
 
-Update environment variables:
-
-```bash
-echo 'export PATH="/usr/local/bin:$PATH"' | sudo tee -a /etc/profile.d/openssl.sh
-echo 'export LD_LIBRARY_PATH="/usr/local/lib64:/usr/local/lib:$LD_LIBRARY_PATH"' | sudo tee -a /etc/profile.d/openssl.sh
-echo 'export PKG_CONFIG_PATH="/usr/local/lib64/pkgconfig:/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"' | sudo tee -a /etc/profile.d/openssl.sh
-source /etc/profile.d/openssl.sh
-```
-
 Verify installation:
 
 ```bash
-openssl version
+LD_LIBRARY_PATH=/usr/local/lib64 openssl version
 ```
+
+> [!NOTE]  
+> Don't make a global configuration change (e.g. at `/etc/ld.so.conf.d/custom-openssl.conf`) as it would force your system tools (like SSH, apt, and curl) to try loading your custom OpenSSL 3.5.3, which is incompatible with the version they were built against (OpenSSL 3.0.x or less).
 
 ### 3. Build and Install StrongSwan 6.0.2
 
@@ -173,54 +167,41 @@ sudo sysctl -p
 
 ## PKI Generation
 
-Use the provided script to generate certificates. Save this as `generate-pki.sh` and make it executable.
-
-For Classical Mode (RSA-4096):
+Use the provided script to generate certificates.
 
 ```bash
 git clone https://github.com/chmodshubham/strongswan.git
 cd strongswan/
 chmod +x generate-pki.sh
-./generate-pki.sh classical
+./generate-pki.sh <IPSEC_MODE>
 ```
 
-For Post-Quantum Mode:
-
-```bash
-./generate-pki.sh pq-support
-```
+> [!NOTE]  
+> **IPSEC_MODE** can be either `classical` or `pq-support` and **AUTH_MODE** can be either `certs` for certificate-based authentication or `psk` for pre-shared key authentication.
 
 ## Server Configuration
 
-### 1. Copy Certificates (for certificate-based auth)
+### 1. Copy Certificates (only for certificate-based auth)
 
 ```bash
-# For classical mode
-sudo cp classical/pki/cacerts/ca-cert.pem /etc/swanctl/x509ca/
-sudo cp classical/pki/certs/server-cert.pem /etc/swanctl/x509/
-sudo cp classical/pki/private/server-key.pem /etc/swanctl/private/
-sudo cp classical/pki/certs/client-cert.pem /etc/swanctl/x509/
-sudo cp classical/pki/private/client-key.pem /etc/swanctl/private/
-
-# For pq-support mode, replace 'classical' with 'pq-support' in above commands
+sudo cp <IPSEC_MODE>/pki/cacerts/ca-cert.pem /etc/swanctl/x509ca/
+sudo cp <IPSEC_MODE>/pki/certs/server-cert.pem /etc/swanctl/x509/
+sudo cp <IPSEC_MODE>/pki/private/server-key.pem /etc/swanctl/private/
+sudo cp <IPSEC_MODE>/pki/certs/client-cert.pem /etc/swanctl/x509/
+sudo cp <IPSEC_MODE>/pki/private/client-key.pem /etc/swanctl/private/
 ```
 
 ### 2. Copy Configuration Files
 
-Update the `local_addrs` and `remote_addrs` in the respective `.conf` files.
-
-Copy the server configuration from your repository:
+Update the `local_addrs` and `remote_addrs` in the respective `<IPSEC_MODE>/conf/<AUTH_MODE>/server.conf` file. Copy the server configuration from your repository:
 
 ```bash
-# For certificate-based authentication
-sudo cp <IPSEC_MODE>/conf/certs/server.conf /etc/swanctl/swanctl.conf
-
-# For PSK authentication
-sudo cp <IPSEC_MODE>/conf/psk/server.conf /etc/swanctl/swanctl.conf
-sudo cp <IPSEC_MODE>/conf/psk/secrets.conf /etc/ipsec.secrets
+sudo cp <IPSEC_MODE>/conf/<AUTH_MODE>/server.conf /etc/swanctl/swanctl.conf
+# sudo cp <IPSEC_MODE>/conf/psk/secrets.conf /etc/ipsec.secrets
 ```
 
-Replace `<IPSEC_MODE>` with either `classical` or `pq-support`.
+> [!TIP]
+> `swanctl` completely ignores `/etc/ipsec.secrets`. It only reads secrets defined inside `/etc/swanctl/swanctl.conf`.
 
 ### 3. Configure Server Network
 
@@ -237,9 +218,6 @@ sudo ip link set tunnel0 up
 # Start the daemon
 sudo systemctl enable strongswan
 sudo systemctl start strongswan
-
-# Or start manually
-sudo /usr/sbin/charon-systemd &
 ```
 
 Verify Swanctl Status
@@ -256,35 +234,28 @@ sudo swanctl --load-all
 
 ## Client Configuration
 
-### 1. Copy Certificates (for certificate-based auth)
+### 1. Copy Certificates (only for certificate-based auth)
 
 ```bash
-# For classical mode
-sudo cp classical/pki/cacerts/ca-cert.pem /etc/swanctl/x509ca/
-sudo cp classical/pki/certs/client-cert.pem /etc/swanctl/x509/
-sudo cp classical/pki/private/client-key.pem /etc/swanctl/private/
-sudo cp classical/pki/certs/server-cert.pem /etc/swanctl/x509/
-sudo cp classical/pki/private/server-key.pem /etc/swanctl/private/
-
-# For pq-support mode, replace 'classical' with 'pq-support' in above commands
+sudo cp <IPSEC_MODE>/pki/cacerts/ca-cert.pem /etc/swanctl/x509ca/
+sudo cp <IPSEC_MODE>/pki/certs/server-cert.pem /etc/swanctl/x509/
+sudo cp <IPSEC_MODE>/pki/private/server-key.pem /etc/swanctl/private/
+sudo cp <IPSEC_MODE>/pki/certs/client-cert.pem /etc/swanctl/x509/
+sudo cp <IPSEC_MODE>/pki/private/client-key.pem /etc/swanctl/private/
 ```
 
 ### 2. Copy Configuration Files
 
-Update the `local_addrs` and `remote_addrs` in the respective `.conf` files.
 
-Copy the client configuration from your repository:
+Update the `local_addrs` and `remote_addrs` in the respective `<IPSEC_MODE>/conf/<AUTH_MODE>/client.conf` file. Copy the client configuration from your repository:
 
 ```bash
-# For certificate-based authentication
-sudo cp <IPSEC_MODE>/conf/certs/client.conf /etc/swanctl/swanctl.conf
-
-# For PSK authentication
-sudo cp <IPSEC_MODE>/conf/psk/client.conf /etc/swanctl/swanctl.conf
-sudo cp <IPSEC_MODE>/conf/psk/secrets.conf /etc/ipsec.secrets
+sudo cp <IPSEC_MODE>/conf/<AUTH_MODE>/client.conf /etc/swanctl/swanctl.conf
+# sudo cp <IPSEC_MODE>/conf/psk/secrets.conf /etc/ipsec.secrets
 ```
 
-Replace `<IPSEC_MODE>` with either `classical` or `pq-support`.
+> [!TIP]
+> `swanctl` completely ignores `/etc/ipsec.secrets`. It only reads secrets defined inside `/etc/swanctl/swanctl.conf`.
 
 ### 3. Start StrongSwan
 
@@ -292,9 +263,6 @@ Replace `<IPSEC_MODE>` with either `classical` or `pq-support`.
 # Start the daemon
 sudo systemctl enable strongswan
 sudo systemctl start strongswan
-
-# Or start manually
-sudo /usr/sbin/charon-systemd &
 ```
 
 ### 4. Load Configuration
@@ -303,17 +271,8 @@ sudo /usr/sbin/charon-systemd &
 sudo swanctl --load-all
 ```
 
-### 5. Initiate Connection
-
-```bash
-sudo swanctl --initiate --child tunnel-to-corp
-```
-
-### 6. Verify Connection
-
-```bash
-sudo swanctl --list-sas
-```
+> [!NOTE]
+> If everything is configured correctly, the tunnel should establish automatically. If not, initiate it manually with `sudo swanctl --initiate --child tunnel-to-corp`.
 
 ## Verify IPsec Tunnel
 
@@ -379,10 +338,15 @@ openssl x509 -in /etc/swanctl/x509ca/ca-cert.pem -text -noout
 # Manually initiate tunnel
 sudo swanctl --initiate --child tunnel-to-corp
 
-# Check if daemon is running
-ps aux | grep charon
-
 # Reload configuration
+sudo swanctl --load-all
+```
+
+If reloading configuration fails, try restarting strongswan:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart strongswan
 sudo swanctl --load-all
 ```
 
