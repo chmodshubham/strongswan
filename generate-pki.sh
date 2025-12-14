@@ -16,32 +16,32 @@ if [ "$MODE" = "pq-support" ]; then
 
     # CA private key (RSA-4096 - ML-DSA-65 not yet supported)
     # TODO: Replace with ML-DSA-65 when supported: openssl genpkey -algorithm ML-DSA-65 -out pq-support/pki/private/ca-key.pem
-    openssl genrsa -out pq-support/pki/private/ca-key.pem 4096
+    LD_LIBRARY_PATH=/usr/local/lib64 openssl genrsa -out pq-support/pki/private/ca-key.pem 4096
 
     # CA certificate
-    openssl req -new -x509 -key pq-support/pki/private/ca-key.pem -out pq-support/pki/cacerts/ca-cert.pem -days 3650 \
+    LD_LIBRARY_PATH=/usr/local/lib64 openssl req -new -x509 -key pq-support/pki/private/ca-key.pem -out pq-support/pki/cacerts/ca-cert.pem -days 3650 \
         -subj "/C=US/ST=Test/L=Test/O=Test PQ CA/CN=Test PQ CA"
 
     # Server private key (RSA-4096 - ML-DSA-65 not yet supported)
     # TODO: Replace with ML-DSA-65 when supported: openssl genpkey -algorithm ML-DSA-65 -out pq-support/pki/private/server-key.pem
-    openssl genrsa -out pq-support/pki/private/server-key.pem 4096
+    LD_LIBRARY_PATH=/usr/local/lib64 openssl genrsa -out pq-support/pki/private/server-key.pem 4096
 
     # Server certificate
-    openssl req -new -key pq-support/pki/private/server-key.pem -out server.csr \
+    LD_LIBRARY_PATH=/usr/local/lib64 openssl req -new -key pq-support/pki/private/server-key.pem -out server.csr \
         -subj "/C=US/ST=Test/L=Test/O=Test Server/OU=Test/CN=vpn.test.local"
 
-    openssl x509 -req -in server.csr -CA pq-support/pki/cacerts/ca-cert.pem -CAkey pq-support/pki/private/ca-key.pem \
+    LD_LIBRARY_PATH=/usr/local/lib64 openssl x509 -req -in server.csr -CA pq-support/pki/cacerts/ca-cert.pem -CAkey pq-support/pki/private/ca-key.pem \
         -CAcreateserial -out pq-support/pki/certs/server-cert.pem -days 365
 
     # Client private key (RSA-4096 - ML-DSA-65 not yet supported)
     # TODO: Replace with ML-DSA-65 when supported: openssl genpkey -algorithm ML-DSA-65 -out pq-support/pki/private/client-key.pem
-    openssl genrsa -out pq-support/pki/private/client-key.pem 4096
+    LD_LIBRARY_PATH=/usr/local/lib64 openssl genrsa -out pq-support/pki/private/client-key.pem 4096
 
     # Client certificate
-    openssl req -new -key pq-support/pki/private/client-key.pem -out client.csr \
+    LD_LIBRARY_PATH=/usr/local/lib64 openssl req -new -key pq-support/pki/private/client-key.pem -out client.csr \
         -subj "/C=US/ST=Test/L=Test/O=Test Client/OU=Test/CN=client.test.local"
         
-    openssl x509 -req -in client.csr -CA pq-support/pki/cacerts/ca-cert.pem -CAkey pq-support/pki/private/ca-key.pem \
+    LD_LIBRARY_PATH=/usr/local/lib64 openssl x509 -req -in client.csr -CA pq-support/pki/cacerts/ca-cert.pem -CAkey pq-support/pki/private/ca-key.pem \
         -CAcreateserial -out pq-support/pki/certs/client-cert.pem -days 365
 
     # Set proper permissions
@@ -59,8 +59,8 @@ if [ "$MODE" = "pq-support" ]; then
     # Verify certificates
     echo ""
     echo "=== Certificate Verification ==="
-    openssl verify -CAfile pq-support/pki/cacerts/ca-cert.pem pq-support/pki/certs/server-cert.pem
-    openssl verify -CAfile pq-support/pki/cacerts/ca-cert.pem pq-support/pki/certs/client-cert.pem
+    LD_LIBRARY_PATH=/usr/local/lib64 openssl verify -CAfile pq-support/pki/cacerts/ca-cert.pem pq-support/pki/certs/server-cert.pem
+    LD_LIBRARY_PATH=/usr/local/lib64 openssl verify -CAfile pq-support/pki/cacerts/ca-cert.pem pq-support/pki/certs/client-cert.pem
 
 else
     echo "=== Generating Classical PKI (RSA-4096) ==="
@@ -70,28 +70,28 @@ else
     mkdir -p classical/pki/{cacerts,certs,private}
 
     # CA private key (RSA-4096)
-    openssl genrsa -out classical/pki/private/ca-key.pem 4096
+    LD_LIBRARY_PATH=/usr/local/lib64 openssl genrsa -out classical/pki/private/ca-key.pem 4096
 
     # CA certificate
-    openssl req -new -x509 -key classical/pki/private/ca-key.pem -out classical/pki/cacerts/ca-cert.pem -days 3650 \
+    LD_LIBRARY_PATH=/usr/local/lib64 openssl req -new -x509 -key classical/pki/private/ca-key.pem -out classical/pki/cacerts/ca-cert.pem -days 3650 \
         -subj "/C=US/ST=Test/L=Test/O=Test CA/OU=Test/CN=Test CA"
 
     # Server private key (RSA-4096)
-    openssl genrsa -out classical/pki/private/server-key.pem 4096
+    LD_LIBRARY_PATH=/usr/local/lib64 openssl genrsa -out classical/pki/private/server-key.pem 4096
 
     # Server certificate
-    openssl req -new -key classical/pki/private/server-key.pem -out server.csr \
+    LD_LIBRARY_PATH=/usr/local/lib64 openssl req -new -key classical/pki/private/server-key.pem -out server.csr \
         -subj "/C=US/ST=Test/L=Test/O=Test Server/OU=Test/CN=vpn.test.local"
-    openssl x509 -req -in server.csr -CA classical/pki/cacerts/ca-cert.pem -CAkey classical/pki/private/ca-key.pem \
+    LD_LIBRARY_PATH=/usr/local/lib64 openssl x509 -req -in server.csr -CA classical/pki/cacerts/ca-cert.pem -CAkey classical/pki/private/ca-key.pem \
         -CAcreateserial -out classical/pki/certs/server-cert.pem -days 365
 
     # Client private key (RSA-4096)
-    openssl genrsa -out classical/pki/private/client-key.pem 4096
+    LD_LIBRARY_PATH=/usr/local/lib64 openssl genrsa -out classical/pki/private/client-key.pem 4096
 
     # Client certificate
-    openssl req -new -key classical/pki/private/client-key.pem -out client.csr \
+    LD_LIBRARY_PATH=/usr/local/lib64 openssl req -new -key classical/pki/private/client-key.pem -out client.csr \
         -subj "/C=US/ST=Test/L=Test/O=Test Client/OU=Test/CN=client.test.local"
-    openssl x509 -req -in client.csr -CA classical/pki/cacerts/ca-cert.pem -CAkey classical/pki/private/ca-key.pem \
+    LD_LIBRARY_PATH=/usr/local/lib64 openssl x509 -req -in client.csr -CA classical/pki/cacerts/ca-cert.pem -CAkey classical/pki/private/ca-key.pem \
         -CAcreateserial -out classical/pki/certs/client-cert.pem -days 365
 
     # Set proper permissions
@@ -109,8 +109,8 @@ else
     # Verify certificates
     echo ""
     echo "=== Certificate Verification ==="
-    openssl verify -CAfile classical/pki/cacerts/ca-cert.pem classical/pki/certs/server-cert.pem
-    openssl verify -CAfile classical/pki/cacerts/ca-cert.pem classical/pki/certs/client-cert.pem
+    LD_LIBRARY_PATH=/usr/local/lib64 openssl verify -CAfile classical/pki/cacerts/ca-cert.pem classical/pki/certs/server-cert.pem
+    LD_LIBRARY_PATH=/usr/local/lib64 openssl verify -CAfile classical/pki/cacerts/ca-cert.pem classical/pki/certs/client-cert.pem
 fi
 
 # Clean up CSR files

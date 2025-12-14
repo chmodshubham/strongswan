@@ -71,7 +71,9 @@ sudo apt-get install -y \
     perl-doc
 ```
 
-### 2. Build and Install OpenSSL 3.5.3
+### 2. Build and Install OpenSSL 3.5.x
+
+OpenSSL Library 3.5 source bundle can be downloaded from [OpenSSL Downloads](https://openssl-library.org/source/).
 
 ```bash
 cd /tmp
@@ -93,7 +95,9 @@ LD_LIBRARY_PATH=/usr/local/lib64 openssl version
 > [!NOTE]  
 > Don't make a global configuration change (e.g. at `/etc/ld.so.conf.d/custom-openssl.conf`) as it would force your system tools (like SSH, apt, and curl) to try loading your custom OpenSSL 3.5.3, which is incompatible with the version they were built against (OpenSSL 3.0.x or less).
 
-### 3. Build and Install StrongSwan 6.0.2
+### 3. Build and Install StrongSwan 6.0.x
+
+Download StrongSwan 6.0.x source bundle from [StrongSwan Downloads](https://download.strongswan.org/).
 
 ```bash
 cd /tmp
