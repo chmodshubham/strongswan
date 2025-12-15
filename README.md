@@ -183,6 +183,9 @@ chmod +x generate-pki.sh
 > [!NOTE]  
 > **IPSEC_MODE** can be either `classical` or `pq-support` and **AUTH_MODE** can be either `certs` for certificate-based authentication or `psk` for pre-shared key authentication.
 
+> [!IMPORTANT]
+> Make sure you use the same certs on both server and client for certificate-based authentication.
+
 ## Server Configuration
 
 ### 1. Copy Certificates (only for certificate-based auth)
