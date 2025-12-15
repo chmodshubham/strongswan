@@ -314,7 +314,7 @@ sudo ip xfrm state list
 
 ```bash
 # View StrongSwan logs
-sudo journalctl -u strongswan-swanctl -f
+sudo journalctl -u strongswan -f
 
 # Or check syslog
 sudo tail -f /var/log/syslog | grep -E "(charon|ipsec)"
